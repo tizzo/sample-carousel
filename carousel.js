@@ -37,7 +37,7 @@ ItemDisplay.prototype.render = function() {
     this.imageElement = $('<img height="100px" width="auto" src="" alt="" />');
   }
   if (this.titleElement == null) {
-    this.titleElement = $('<span class="title"></span>');
+    this.titleElement = $('<div class="title"></div>');
   }
   if (this.element == null) {
     this.element = $('<div class="item-model"></div>');
