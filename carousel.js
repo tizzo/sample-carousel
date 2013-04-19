@@ -4,8 +4,14 @@ var Buffer = function(list) {
   }
 }
 Buffer.prototype.unusedList = [];
+Buffer.prototype.lastModel = null;
 Buffer.prototype.getNext = function() {
-  return new ItemModel(this.unusedList.shift());
+  var item = new ItemModel(this.unusedList.shift());
+  if (this.lastModel) {
+    this.lastModel.setNext(item);
+    item.setPrevious(this.lastModel);
+  }
+  return item;
 };
 Buffer.prototype.addItems = function(incomingItems) {
   this.unusedList = this.unusedList.concat(incomingItems);
@@ -48,13 +54,17 @@ ItemDisplay.prototype.render = function() {
   this.imageElement.attr('alt', 'Image of ' + this.currentModel.title);
   this.titleElement.html(this.currentModel.title);
 }
+ItemDisplay.prototype.next = function() {
+  this.currentModel = this.currentModel.next;
+  this.render();
+};
 var Displays = function(list) {
   this.displays = list;
 };
 Displays.prototype.displays = [];
 Displays.prototype.next = function() {
   for (i in this.displays) {
-    this.displays[i].previous();
+    this.displays[i].next();
   }
 };
 Displays.prototype.previous = function() {
@@ -68,7 +78,7 @@ Displays.prototype.push = function(item) {
 $(document).ready(function() {
   var buffer = new Buffer(initialItems);
   var displays = new Displays([]);
-  for (var i=0 ; i < 3 ; i++) {
+  for (var i=0 ; i < 5 ; i++) {
     var display = new ItemDisplay(buffer.getNext());
     display.render();
     displays.push(display.element);
@@ -78,7 +88,10 @@ $(document).ready(function() {
   var $previousButton = $('<div class="button"><a href="#">previous</a></div>');
   $('#page').append($nextButton, $previousButton);
   $nextButton.click(function() {
-   
+    displays.next(); 
+  });
+  $previousButton.click(function() {
+    displays.previous(); 
   });
 });
 
