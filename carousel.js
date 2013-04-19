@@ -51,9 +51,16 @@ ItemDisplay.prototype.render = function() {
 
 $(document).ready(function() {
   var buffer = new Buffer(initialItems);
-  var display1 = new ItemDisplay(buffer.getNext());
-  display1.render();
-  $('#page').append(display1.element);
+  var displays = [];
+  for (var i=0 ; i < 3 ; i++) {
+    var display = new ItemDisplay(buffer.getNext());
+    display.render();
+    displays.push(display.element);
+  }
+  $('#page').append(displays);
+  var $nextButton = $('<div class="button"><a href="#">next</a></div>');
+  var $previousButton = $('<div class="button"><a href="#">previous</a></div>');
+  $('#page').append($nextButton, $previousButton);
 });
 
 
