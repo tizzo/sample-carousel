@@ -5,7 +5,7 @@ var Buffer = function(list) {
 }
 Buffer.prototype.unusedList = [];
 Buffer.prototype.getNext = function() {
-  return this.unusedList.shift();
+  return new ItemModel(this.unusedList.shift());
 };
 Buffer.prototype.addItems = function(incomingItems) {
   this.unusedList = this.unusedList.concat(incomingItems);
@@ -14,6 +14,41 @@ $(document).ready(function() {
   var buffer = new Buffer(initialItems);
   console.log(buffer.getNext());
 });
+
+var ItemModel = function(data) {
+  this.title = data.title;
+  this.image = data.image;
+};
+ItemModel.prototype.title = '';
+ItemModel.prototype.image = '';
+ItemModel.prototype.next = null;
+ItemModel.prototype.previous = null;
+ItemModel.prototype.setNext = function(model) {
+  this.next = model;
+};
+ItemModel.prototype.setPrevious = function(model) {
+  this.previous = model;
+};
+
+var ItemDisplay = function() {
+}
+ItemDisplay.prototype.element = null;
+ItemDisplay.prototype.imageElement = null;
+ItemDisplay.prototype.titleElement = null;
+ItemDisplay.prototype.render = function() {
+  if (this.imageElement == null) {
+    this.imageElement = $('<img src="" alt="" />');
+  }
+  if (this.titleElement == null) {
+    this.titleElement = $('<span class="title"></span>');
+  }
+  if (this.element == null) {
+    this.element = $('<div class="item-model"></div>');
+    this.element.append(this.imageElement);
+    this.element.append(this.titleElement);
+  }
+}
+
 
 var initialItems = [
     {
