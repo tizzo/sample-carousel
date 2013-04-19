@@ -48,19 +48,38 @@ ItemDisplay.prototype.render = function() {
   this.imageElement.attr('alt', 'Image of ' + this.currentModel.title);
   this.titleElement.html(this.currentModel.title);
 }
-
+var Displays = function(list) {
+  this.displays = list;
+};
+Displays.prototype.displays = [];
+Displays.prototype.next = function() {
+  for (i in this.displays) {
+    this.displays[i].previous();
+  }
+};
+Displays.prototype.previous = function() {
+  for (i in this.displays) {
+    this.displays[i].previous();
+  }
+};
+Displays.prototype.push = function(item) {
+  this.displays.push(item);
+};
 $(document).ready(function() {
   var buffer = new Buffer(initialItems);
-  var displays = [];
+  var displays = new Displays([]);
   for (var i=0 ; i < 3 ; i++) {
     var display = new ItemDisplay(buffer.getNext());
     display.render();
     displays.push(display.element);
   }
-  $('#page').append(displays);
+  $('#page').append(displays.displays);
   var $nextButton = $('<div class="button"><a href="#">next</a></div>');
   var $previousButton = $('<div class="button"><a href="#">previous</a></div>');
   $('#page').append($nextButton, $previousButton);
+  $nextButton.click(function() {
+   
+  });
 });
 
 
