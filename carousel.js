@@ -51,7 +51,9 @@ ItemDisplay.prototype.render = function() {
 
 $(document).ready(function() {
   var buffer = new Buffer(initialItems);
-  console.log(buffer.getNext());
+  var display1 = new ItemDisplay(buffer.getNext());
+  display1.render();
+  $('#page').append(display1.element);
 });
 
 
