@@ -10,11 +10,6 @@ Buffer.prototype.getNext = function() {
 Buffer.prototype.addItems = function(incomingItems) {
   this.unusedList = this.unusedList.concat(incomingItems);
 };
-$(document).ready(function() {
-  var buffer = new Buffer(initialItems);
-  console.log(buffer.getNext());
-});
-
 var ItemModel = function(data) {
   this.title = data.title;
   this.image = data.image;
@@ -30,11 +25,13 @@ ItemModel.prototype.setPrevious = function(model) {
   this.previous = model;
 };
 
-var ItemDisplay = function() {
+var ItemDisplay = function(model) {
+  this.currentModel = model;
 }
 ItemDisplay.prototype.element = null;
 ItemDisplay.prototype.imageElement = null;
 ItemDisplay.prototype.titleElement = null;
+ItemDisplay.prototype.currentModel = null;
 ItemDisplay.prototype.render = function() {
   if (this.imageElement == null) {
     this.imageElement = $('<img src="" alt="" />');
@@ -47,7 +44,15 @@ ItemDisplay.prototype.render = function() {
     this.element.append(this.imageElement);
     this.element.append(this.titleElement);
   }
+  this.imageElement.attr('src', this.currentModel.image);
+  this.imageElement.attr('alt', 'Image of ' + this.currentModel.title);
+  this.titleElement.html(this.currentModel.title);
 }
+
+$(document).ready(function() {
+  var buffer = new Buffer(initialItems);
+  console.log(buffer.getNext());
+});
 
 
 var initialItems = [
