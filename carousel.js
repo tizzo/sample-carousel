@@ -4,15 +4,36 @@ var Buffer = function(list) {
   }
 }
 Buffer.prototype.unusedList = [];
-Buffer.prototype.lastModel = null;
+Buffer.prototype.rightMostModel = null;
+Buffer.prototype.leftMostModel = null;
 Buffer.prototype.getNext = function() {
+  if (this.unusedList.length != 0) {
+    var item = new ItemModel(this.unusedList.shift());
+    if (!this.rightMostModel && !this.leftMostModel) {
+      this.rightMostModel = this.leftMostModel = item;
+    }
+    item.buffer = this;
+  }
+  else {
+    item = this.leftMostModel;
+  }
+  if (this.rightMostModel) {
+    console.log('adding ' +  item.title + ' after ' + this.rightMostModel.title);
+    this.rightMostModel.setNext(item);
+    item.setPrevious(this.rightMostModel);
+  }
+  this.rightMostModel = item;
+  return item;
+};
+Buffer.prototype.getPrevious = function() {
   var item = new ItemModel(this.unusedList.shift());
   item.buffer = this;
-  if (this.lastModel) {
-    this.lastModel.setNext(item);
-    item.setPrevious(this.lastModel);
+  if (this.leftMostModel) {
+    console.log('adding ' +  this.leftMostModel.title + ' after ' + item.title);
+    this.leftMostModel.setPrevious(item);
+    item.setNext(this.leftMostModel);
   }
-  this.lastModel = item;
+  this.leftMostModel = item;
   return item;
 };
 Buffer.prototype.addItems = function(incomingItems) {
@@ -65,6 +86,15 @@ ItemDisplay.prototype.next = function() {
   }
   else {
     this.currentModel = this.buffer.getNext();
+  }
+  this.render();
+};
+ItemDisplay.prototype.previous = function() {
+  if (this.currentModel.previous) {
+    this.currentModel = this.currentModel.previous;
+  }
+  else {
+    this.currentModel = this.buffer.getPrevious();
   }
   this.render();
 };
