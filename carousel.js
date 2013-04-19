@@ -7,10 +7,12 @@ Buffer.prototype.unusedList = [];
 Buffer.prototype.lastModel = null;
 Buffer.prototype.getNext = function() {
   var item = new ItemModel(this.unusedList.shift());
+  item.buffer = this;
   if (this.lastModel) {
     this.lastModel.setNext(item);
     item.setPrevious(this.lastModel);
   }
+  this.lastModel = item;
   return item;
 };
 Buffer.prototype.addItems = function(incomingItems) {
@@ -24,6 +26,7 @@ ItemModel.prototype.title = '';
 ItemModel.prototype.image = '';
 ItemModel.prototype.next = null;
 ItemModel.prototype.previous = null;
+ItemModel.prototype.buffer = null;
 ItemModel.prototype.setNext = function(model) {
   this.next = model;
 };
@@ -31,13 +34,15 @@ ItemModel.prototype.setPrevious = function(model) {
   this.previous = model;
 };
 
-var ItemDisplay = function(model) {
+var ItemDisplay = function(model, buffer) {
   this.currentModel = model;
+  this.buffer = buffer;
 }
 ItemDisplay.prototype.element = null;
 ItemDisplay.prototype.imageElement = null;
 ItemDisplay.prototype.titleElement = null;
 ItemDisplay.prototype.currentModel = null;
+ItemDisplay.prototype.buffer = null;
 ItemDisplay.prototype.render = function() {
   if (this.imageElement == null) {
     this.imageElement = $('<img height="100px" width="auto" src="" alt="" />');
@@ -55,7 +60,12 @@ ItemDisplay.prototype.render = function() {
   this.titleElement.html(this.currentModel.title);
 }
 ItemDisplay.prototype.next = function() {
-  this.currentModel = this.currentModel.next;
+  if (this.currentModel.next) {
+    this.currentModel = this.currentModel.next;
+  }
+  else {
+    this.currentModel = this.buffer.getNext();
+  }
   this.render();
 };
 var Displays = function(list) {
@@ -78,15 +88,16 @@ Displays.prototype.push = function(item) {
 $(document).ready(function() {
   var buffer = new Buffer(initialItems);
   var displays = new Displays([]);
-  for (var i=0 ; i < 5 ; i++) {
-    var display = new ItemDisplay(buffer.getNext());
+  var $page = $('#page');
+  for (var i=0 ; i < 2 ; i++) {
+    var display = new ItemDisplay(buffer.getNext(), buffer);
     display.render();
-    displays.push(display.element);
+    displays.push(display);
+    $page.append(display.element);
   }
-  $('#page').append(displays.displays);
   var $nextButton = $('<div class="button"><a href="#">next</a></div>');
   var $previousButton = $('<div class="button"><a href="#">previous</a></div>');
-  $('#page').append($nextButton, $previousButton);
+  $page.append($nextButton, $previousButton);
   $nextButton.click(function() {
     displays.next(); 
   });
