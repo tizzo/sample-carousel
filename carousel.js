@@ -11,7 +11,11 @@ Buffer.prototype.addItems = function(incomingItems) {
   this.unusedList = this.unusedList.concat(incomingItems);
 };
 $(document).ready(function() {
-  var initialItems = [
+  var buffer = new Buffer(initialItems);
+  console.log(buffer.getNext());
+});
+
+var initialItems = [
     {
       title: 'This is Batman.',
       image: 'http://images4.wikia.nocookie.net/__cb20120113133430/batman/images/e/e9/000hctfysy2.jpg'
@@ -33,6 +37,4 @@ $(document).ready(function() {
       image: 'http://images2.wikia.nocookie.net/__cb20121223023426/bigbangtheory/images/f/ff/Gl.jpg'
     },
   ];
-  var buffer = new Buffer(initialItems);
-  console.log(buffer.getNext());
-});
+
