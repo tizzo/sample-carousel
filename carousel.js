@@ -4,36 +4,32 @@ var Buffer = function(list) {
   }
 }
 Buffer.prototype.unusedList = [];
-Buffer.prototype.rightMostModel = null;
-Buffer.prototype.leftMostModel = null;
-Buffer.prototype.getNext = function() {
+Buffer.prototype.firstModel = null;
+Buffer.prototype.lastModel = null;
+Buffer.prototype.getNext = function(backward) {
+  var forwardMost = 'lastModel';
+  var backwardMost = 'firstModel';
+  var item = item;
+  if (backward) {
+    forwardMost = 'firstModel';
+    backwardMost = 'lastModel';
+  }
   if (this.unusedList.length != 0) {
-    var item = new ItemModel(this.unusedList.shift());
-    if (!this.rightMostModel && !this.leftMostModel) {
-      this.rightMostModel = this.leftMostModel = item;
-    }
+    item = new ItemModel(this.unusedList.shift());
+    this[forwardMost] =  item;
+    console.log(forwardMost + ' is now ' + item.title);
     item.buffer = this;
   }
   else {
-    item = this.leftMostModel;
+    item = this[backwardMost];
   }
-  if (this.rightMostModel) {
-    console.log('adding ' +  item.title + ' after ' + this.rightMostModel.title);
-    this.rightMostModel.setNext(item);
-    item.setPrevious(this.rightMostModel);
+  if (this[forwardMost] == null) {
+    this[forwardMost] = item;
   }
-  this.rightMostModel = item;
-  return item;
-};
-Buffer.prototype.getPrevious = function() {
-  var item = new ItemModel(this.unusedList.shift());
-  item.buffer = this;
-  if (this.leftMostModel) {
-    console.log('adding ' +  this.leftMostModel.title + ' after ' + item.title);
-    this.leftMostModel.setPrevious(item);
-    item.setNext(this.leftMostModel);
+  if (this[backwardMost] == null) {
+    this[backwardMost] = item;
   }
-  this.leftMostModel = item;
+  console.log('returning ' + item.title + ' from buffer');
   return item;
 };
 Buffer.prototype.addItems = function(incomingItems) {
@@ -54,11 +50,29 @@ ItemModel.prototype.setNext = function(model) {
 ItemModel.prototype.setPrevious = function(model) {
   this.previous = model;
 };
-
+ItemModel.prototype.getNext = function(reverse) {
+  var following = 'next';
+  var previous = 'previous';
+  if (reverse) {
+    following = 'previous';
+    previous = 'next';
+  }
+  if (this[following] != null) {
+    return this[following];
+  }
+  else {
+    var item = this.buffer.getNext(reverse);
+    item[previous] = this;
+    return this[following] = item;
+  }
+};
+ItemModel.prototype.getPrevious = function() {
+  return this.getNext(reverse = true);
+};
 var ItemDisplay = function(model, buffer) {
   this.currentModel = model;
   this.buffer = buffer;
-}
+};
 ItemDisplay.prototype.element = null;
 ItemDisplay.prototype.imageElement = null;
 ItemDisplay.prototype.titleElement = null;
@@ -81,21 +95,11 @@ ItemDisplay.prototype.render = function() {
   this.titleElement.html(this.currentModel.title);
 }
 ItemDisplay.prototype.next = function() {
-  if (this.currentModel.next) {
-    this.currentModel = this.currentModel.next;
-  }
-  else {
-    this.currentModel = this.buffer.getNext();
-  }
+  this.currentModel = this.currentModel.getNext();
   this.render();
 };
 ItemDisplay.prototype.previous = function() {
-  if (this.currentModel.previous) {
-    this.currentModel = this.currentModel.previous;
-  }
-  else {
-    this.currentModel = this.buffer.getPrevious();
-  }
+  this.currentModel = this.currentModel.getPrevious();
   this.render();
 };
 var Displays = function(list) {
@@ -119,20 +123,22 @@ $(document).ready(function() {
   var buffer = new Buffer(initialItems);
   var displays = new Displays([]);
   var $page = $('#page');
+  var item = buffer.getNext();
   for (var i=0 ; i < 2 ; i++) {
-    var display = new ItemDisplay(buffer.getNext(), buffer);
+    var display = new ItemDisplay(item, buffer);
     display.render();
     displays.push(display);
     $page.append(display.element);
+    item = item.getNext()
   }
   var $nextButton = $('<div class="button"><a href="#">next</a></div>');
   var $previousButton = $('<div class="button"><a href="#">previous</a></div>');
   $page.append($nextButton, $previousButton);
   $nextButton.click(function() {
-    displays.next(); 
+    displays.next();
   });
   $previousButton.click(function() {
-    displays.previous(); 
+    displays.previous();
   });
 });
 
