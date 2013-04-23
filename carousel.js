@@ -17,7 +17,6 @@ Buffer.prototype.getNext = function(backward) {
   if (this.unusedList.length != 0) {
     item = new ItemModel(this.unusedList.shift());
     this[forwardMost] =  item;
-    console.log(forwardMost + ' is now ' + item.title);
     item.buffer = this;
   }
   else {
@@ -29,7 +28,6 @@ Buffer.prototype.getNext = function(backward) {
   if (this[backwardMost] == null) {
     this[backwardMost] = item;
   }
-  console.log('returning ' + item.title + ' from buffer');
   return item;
 };
 Buffer.prototype.addItems = function(incomingItems) {
