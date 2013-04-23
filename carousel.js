@@ -70,6 +70,7 @@ ItemModel.prototype.getPrevious = function() {
 var ItemDisplay = function(model, buffer) {
   this.currentModel = model;
   this.buffer = buffer;
+  _.bindAll(this);
 };
 ItemDisplay.prototype.element = null;
 ItemDisplay.prototype.imageElement = null;
@@ -97,24 +98,18 @@ ItemDisplay.prototype.next = function() {
   this.render();
 };
 ItemDisplay.prototype.previous = function() {
-  this.currentModel = this.currentModel.getPrevious();
+  this.currentModel = this.currentModel.getPrevious(reverse = true);
   this.render();
 };
 var Controller = function(list) {
   this.displays = list;
+  this.emitter = new EventEmitter2();
+  _.extend(this, this.emitter);
 };
 Controller.prototype.displays = [];
-Controller.prototype.next = function() {
-  for (i in this.displays) {
-    this.displays[i].next();
-  }
-};
-Controller.prototype.previous = function() {
-  for (i in this.displays) {
-    this.displays[i].previous();
-  }
-};
 Controller.prototype.push = function(item) {
+  this.emitter.on('next', item.next);
+  this.emitter.on('previous', item.previous);
   this.displays.push(item);
 };
 $(document).ready(function() {
@@ -133,10 +128,10 @@ $(document).ready(function() {
   var $previousButton = $('<div class="button"><a href="#">previous</a></div>');
   $page.append($nextButton, $previousButton);
   $nextButton.click(function() {
-    displays.next();
+    displays.emit('next');
   });
   $previousButton.click(function() {
-    displays.previous();
+    displays.emit('previous');
   });
 });
 
