@@ -102,26 +102,26 @@ ItemDisplay.prototype.previous = function() {
   this.currentModel = this.currentModel.getPrevious();
   this.render();
 };
-var Displays = function(list) {
+var Controller = function(list) {
   this.displays = list;
 };
-Displays.prototype.displays = [];
-Displays.prototype.next = function() {
+Controller.prototype.displays = [];
+Controller.prototype.next = function() {
   for (i in this.displays) {
     this.displays[i].next();
   }
 };
-Displays.prototype.previous = function() {
+Controller.prototype.previous = function() {
   for (i in this.displays) {
     this.displays[i].previous();
   }
 };
-Displays.prototype.push = function(item) {
+Controller.prototype.push = function(item) {
   this.displays.push(item);
 };
 $(document).ready(function() {
   var buffer = new Buffer(initialItems);
-  var displays = new Displays([]);
+  var displays = new Controller([]);
   var $page = $('#page');
   var item = buffer.getNext();
   for (var i=0 ; i < 2 ; i++) {
