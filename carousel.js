@@ -4,15 +4,30 @@ var Buffer = function(list) {
   }
 }
 Buffer.prototype.unusedList = [];
+Buffer.prototype.firstModel = null;
 Buffer.prototype.lastModel = null;
-Buffer.prototype.getNext = function() {
-  var item = new ItemModel(this.unusedList.shift());
-  item.buffer = this;
-  if (this.lastModel) {
-    this.lastModel.setNext(item);
-    item.setPrevious(this.lastModel);
+Buffer.prototype.getNext = function(backward) {
+  var forwardMost = 'lastModel';
+  var backwardMost = 'firstModel';
+  var item = item;
+  if (backward) {
+    forwardMost = 'firstModel';
+    backwardMost = 'lastModel';
   }
-  this.lastModel = item;
+  if (this.unusedList.length != 0) {
+    item = new ItemModel(this.unusedList.shift());
+    this[forwardMost] =  item;
+    item.buffer = this;
+  }
+  else {
+    item = this[backwardMost];
+  }
+  if (this[forwardMost] == null) {
+    this[forwardMost] = item;
+  }
+  if (this[backwardMost] == null) {
+    this[backwardMost] = item;
+  }
   return item;
 };
 Buffer.prototype.addItems = function(incomingItems) {
@@ -33,11 +48,30 @@ ItemModel.prototype.setNext = function(model) {
 ItemModel.prototype.setPrevious = function(model) {
   this.previous = model;
 };
-
+ItemModel.prototype.getNext = function(reverse) {
+  var following = 'next';
+  var previous = 'previous';
+  if (reverse) {
+    following = 'previous';
+    previous = 'next';
+  }
+  if (this[following] != null) {
+    return this[following];
+  }
+  else {
+    var item = this.buffer.getNext(reverse);
+    item[previous] = this;
+    return this[following] = item;
+  }
+};
+ItemModel.prototype.getPrevious = function() {
+  return this.getNext(reverse = true);
+};
 var ItemDisplay = function(model, buffer) {
   this.currentModel = model;
   this.buffer = buffer;
-}
+  _.bindAll(this);
+};
 ItemDisplay.prototype.element = null;
 ItemDisplay.prototype.imageElement = null;
 ItemDisplay.prototype.titleElement = null;
@@ -60,49 +94,46 @@ ItemDisplay.prototype.render = function() {
   this.titleElement.html(this.currentModel.title);
 }
 ItemDisplay.prototype.next = function() {
-  if (this.currentModel.next) {
-    this.currentModel = this.currentModel.next;
-  }
-  else {
-    this.currentModel = this.buffer.getNext();
-  }
+  this.currentModel = this.currentModel.getNext();
   this.render();
 };
-var Displays = function(list) {
+ItemDisplay.prototype.previous = function() {
+  this.currentModel = this.currentModel.getPrevious(reverse = true);
+  this.render();
+};
+var Controller = function(list) {
   this.displays = list;
+  this.emitter = new EventEmitter2();
+  _.extend(this, this.emitter);
 };
-Displays.prototype.displays = [];
-Displays.prototype.next = function() {
-  for (i in this.displays) {
-    this.displays[i].next();
-  }
-};
-Displays.prototype.previous = function() {
-  for (i in this.displays) {
-    this.displays[i].previous();
-  }
-};
-Displays.prototype.push = function(item) {
+Controller.prototype.displays = [];
+Controller.prototype.emitter = {};
+Controller.prototype.push = function(item) {
+  this.emitter.on('next', item.next);
+  this.emitter.on('previous', item.previous);
   this.displays.push(item);
 };
 $(document).ready(function() {
   var buffer = new Buffer(initialItems);
-  var displays = new Displays([]);
+  var displays = new Controller([]);
   var $page = $('#page');
+  var item = buffer.getNext();
   for (var i=0 ; i < 2 ; i++) {
-    var display = new ItemDisplay(buffer.getNext(), buffer);
+    var display = new ItemDisplay(item, buffer);
     display.render();
     displays.push(display);
     $page.append(display.element);
+    item = item.getNext()
   }
   var $nextButton = $('<div class="button"><a href="#">next</a></div>');
   var $previousButton = $('<div class="button"><a href="#">previous</a></div>');
   $page.append($nextButton, $previousButton);
   $nextButton.click(function() {
-    displays.next(); 
+    displays.emit('next');
   });
   $previousButton.click(function() {
-    displays.previous(); 
+    displays.previous('previous');
+    displays.emit('next');
   });
 });
 
