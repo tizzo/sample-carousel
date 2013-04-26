@@ -139,25 +139,37 @@ $(document).ready(function() {
 
 
 var initialItems = [
-    {
-      title: 'This is Batman.',
-      image: 'http://images4.wikia.nocookie.net/__cb20120113133430/batman/images/e/e9/000hctfysy2.jpg'
-    },
-    {
-      title: 'This is Superman.',
-      image: 'http://images1.wikia.nocookie.net/__cb20100819014815/superman/images/7/72/Superman.jpg'
-    },
-    {
-      title: 'This is Wonder Woman.',
-      image: 'http://amazingstoriesmag.com/wp-content/uploads/2013/02/wonderwoman.jpg'
-    },
-    {
-      title: 'This is The Flash.',
-      image: 'http://www.hyperborea.org/flash/bigimages/wally5.jpg'
-    },
-    {
-      title: 'This is Green Lantern.',
-      image: 'http://images2.wikia.nocookie.net/__cb20121223023426/bigbangtheory/images/f/ff/Gl.jpg'
-    },
-  ];
+  {
+    title: 'This is Batman.',
+    image: 'images/batman.jpg'
+  },
+  {
+    title: 'This is Superman.',
+    image: 'images/superman.jpg'
+  },
+  {
+    title: 'This is Wonder Woman.',
+    image: 'images/wonderwoman.jpg'
+  },
+  {
+    title: 'This is The Flash.',
+    image: 'images/flash.jpg'
+  },
+  {
+    title: 'This is Green Lantern.',
+    image: 'images/greenlantern.jpg'
+  },
+  {
+    title: 'This is Spiderman.',
+    image: 'images/spiderman.jpg'
+  },
+  {
+    title: 'This is Captain America.',
+    image: 'images/captain.jpg'
+  },
+  {
+    title: 'This is Captain Marvel.',
+    image: 'images/marvel.jpg'
+  }
+];
 
